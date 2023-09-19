@@ -1,0 +1,51 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dining.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: bakilic <bakilic@student.42.fr>            +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/09/17 15:21:25 by bakilic           #+#    #+#             */
+/*   Updated: 2023/09/17 15:24:18 by bakilic          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "philo.h"
+
+int	dining(t_philo *philo)
+{
+	pthread_mutex_lock(philo->left_fork);
+	status(philo, "has taken a fork");
+	pthread_mutex_lock(philo->right_fork);
+	status(philo, "has taken a fork");
+	status(philo, "is eating");
+	pthread_mutex_lock(philo->death);
+	philo->meals_eaten++;
+	philo->last_meal = get_ms();
+	pthread_mutex_unlock(philo->death);
+	ft_sleep(philo->time_to_eat);
+	status(philo, "is sleeping");
+	pthread_mutex_unlock(philo->right_fork);
+	pthread_mutex_unlock(philo->left_fork);
+	ft_sleep(philo->time_to_sleep);
+	return (0);
+}
+
+void	*dinner(void *args)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)args;
+	if (philo->nbr_philo == 1)
+	{
+		pthread_mutex_lock(philo->left_fork);
+		status(philo, "has taken a fork");
+		ft_sleep(philo->time_to_die);
+	}
+	while (1)
+	{
+		dining(philo);
+		status(philo, "is thinking");
+	}
+	return (NULL);
+}
